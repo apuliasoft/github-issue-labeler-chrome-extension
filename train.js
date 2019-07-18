@@ -1,14 +1,4 @@
-const server = 'http://localhost:5000/';
-
-let h1s = document.getElementsByTagName("h1");
-let newButton = document.createElement("button");
-
-newButton.setAttribute('id','buttonid');
-newButton.innerHTML = 'Train';
-h1s[0].insertAdjacentHTML('afterend', newButton.outerHTML);
-
-let btn = document.getElementById('buttonid');
-btn.addEventListener("click", train);
+const server = 'http://134.209.248.162:5000/';
 
 function train(){
 
@@ -34,5 +24,25 @@ function train(){
 	     	window.open(res.next);
 
 	});
-
 }
+
+let h1 = document.getElementsByTagName("h1")[0];
+
+if(h1.className.trim()!="public")
+	console.log("Is not possibile to train a private reposiory!");
+else
+	(function (){
+		let newButton = document.createElement("button");
+
+		newButton.setAttribute('id','buttonid');
+		newButton.setAttribute('class','btn');
+		newButton.setAttribute('style','margin-left:10px;');
+		newButton.innerHTML = 'Train this repository';
+		h1.insertAdjacentHTML('afterend', newButton.outerHTML);
+
+		let btn = document.getElementById('buttonid');
+		btn.addEventListener("click", train);
+	})();
+
+
+

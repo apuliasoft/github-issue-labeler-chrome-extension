@@ -16,7 +16,6 @@
     "author": "ApuliaSoft srl",
     "browser_action": {
         "default_icon": "icon.png",
-        "default_popup": "popup.html",
         "default_title": "OpenReq extension"
     },
     "permissions": [
@@ -25,11 +24,12 @@
         "activeTab",
         "http://localhost:1337/*",
         "http://localhost:5000/*" ,
+        "http://134.209.248.162:5000/*",
         "https://www.google.com/*",
         "https://github.com/*"
      ],
     "background": {
-        "scripts": ["background2.js"],
+        "scripts": ["background.js"],
         "persistent": false
     }
 }   
