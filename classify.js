@@ -1,28 +1,86 @@
 const server = 'http://134.209.248.162:5000/';
+console.log("Open Req - Issue Labeller");
 
-var pathname = window.location.pathname;
-var pathnameArray = pathname.split("/");
+
+let pathname = window.location.pathname;
+let pathnameArray = pathname.split("/");
 var repo = pathnameArray[1]+"/"+pathnameArray[2];
 
 
-chrome.runtime.sendMessage({
-method: 'GET',
-action: 'xhttp',
-url: server+'is-owner?repo='+repo,
-data:''
-}, function({ status, responseText }) {
-	let res = JSON.parse(responseText);
-   	console.log(status);
-   	console.log(res);
+if(isIssuePathName()){
+	const h1 = document.getElementsByTagName("h1")[0];
 
-    if(status===200 && res.result)
-     	checkInstalled();
-});
+	if(h1.className.trim()!="public")
+		console.log("Is not possibile to work on a private reposiory!");
+	else{
+		createTrainButton();
+		checkIsOwner();
+	}
+}
+
+function isIssuePathName(){
+	return true;
+}
+
+function getCurrentUrl(){
+	return window.location.href;
+}
+
+function createTrainButton(){
+	const h1 = document.getElementsByTagName("h1")[0];
+
+	const trainButton = document.createElement("button");
+	trainButton.setAttribute('id','train-button-id');
+	trainButton.setAttribute('class','btn');
+	trainButton.setAttribute('style','margin-left:10px;');
+	trainButton.innerHTML = 'Train this repository';
+	trainButton.addEventListener("click", train);
+
+	h1.insertAdjacentElement('afterend', trainButton);
+}
+
+function train(){
+
+	let url = server+'train?repo='+repo+'&next='+getCurrentUrl();
+	console.log(url);
+
+	chrome.runtime.sendMessage({
+    method: 'GET',
+    action: 'xhttp',
+    url: url,
+    data:''
+	}, function({ status, responseText }) {
+		let res = JSON.parse(responseText);
+	    alert(res.message);
+	   	console.log(status);
+	   	console.log(JSON.parse(responseText));
+
+	    if(status===401)
+	     	window.open(res.next);
+
+	});
+}
+
+
+function checkIsOwner(){
+	chrome.runtime.sendMessage({
+	method: 'GET',
+	action: 'xhttp',
+	url: server+'is-owner?repo='+repo+'&next='+getCurrentUrl(),
+	data:''
+	}, function({ status, responseText }) {
+		let res = JSON.parse(responseText);
+	   	console.log("Status " + status + " Is owner?");
+	   	console.log(res);
+
+	    if(status===200 && res.result)
+	     	checkInstalled();
+	});
+}
 
 
 function checkInstalled(){
-	let urlCheckInstalled = server+'check-installed?repo='+repo;
-
+	let urlCheckInstalled = server+'check-installed?repo='+repo+'&next='+getCurrentUrl();
 	chrome.runtime.sendMessage({
 	method: 'GET',
 	action: 'xhttp',
@@ -57,12 +115,13 @@ function getMyModels(){
 
 function showClassifyButton(models){
 	console.log(models);
+
 	if(models.length<=0){
 		console.log("You don't have any model to classify your repo!")
 		return 0;
 	}
 
-	let h1 = document.getElementsByTagName("h1")[0];
+	const h1 = document.getElementsByTagName("h1")[0];
 
 	let newSpan = document.createElement("h1");
 	newSpan.innerHTML = "Models: ";
@@ -86,24 +145,22 @@ function showClassifyButton(models){
 		  newSelect.add(option);
 	});
     	
-    let newButton = document.createElement("button");
-	newButton.setAttribute('id','classify_btn');
-	newButton.setAttribute('class','btn');
-	newButton.innerHTML = 'Classify';
+    let newClassifyButton = document.createElement("button");
+	newClassifyButton.setAttribute('id','classify-button-id');
+	newClassifyButton.setAttribute('class','btn');
+	newClassifyButton.innerHTML = 'Classify';
+	newClassifyButton.addEventListener("click", classify);
 
-	h1.insertAdjacentHTML('afterend', newButton.outerHTML);
-	h1.insertAdjacentHTML('afterend', newSelect.outerHTML);
-	h1.insertAdjacentHTML('afterend', newSpan.outerHTML);
-
-	let btn = document.getElementById('classify_btn');
-	btn.addEventListener("click", classify);
+	h1.insertAdjacentElement('afterend', newClassifyButton);
+	h1.insertAdjacentElement('afterend', newSelect);
+	h1.insertAdjacentElement('afterend', newSpan);
 }
 
 function classify(){
 	let select = document.getElementById('myModels');
 	let selectedRepo = select.options[select.selectedIndex].value;
 
-	let classifyUrl = server + 'classify?repo=' + repo + '&model=' + selectedRepo;
+	let classifyUrl = server + 'classify?repo=' + repo + '&model=' + selectedRepo+'&next='+getCurrentUrl();
 
 	console.log(classifyUrl);
 	chrome.runtime.sendMessage({
@@ -124,13 +181,33 @@ function install(){
 
 function showInstallButton()
 {
-	let h1 = document.getElementsByTagName("h1")[0];
+	const h1 = document.getElementsByTagName("h1")[0];
 
-	let newButton = document.createElement("button");
-	newButton.setAttribute('id','install_btn');
-	newButton.setAttribute('class','btn');
-	newButton.innerHTML = 'Install';
+	let newInstallButton = document.createElement("button");
+	newInstallButton.setAttribute('id','classify-button-id');
+	newInstallButton.setAttribute('class','btn');
+	newInstallButton.setAttribute('style','margin-left:10px;');
+	newInstallButton.innerHTML = 'Install';
+	newInstallButton.addEventListener("click", install);
 
-	let btn = document.getElementById('install_btn');
-	btn.addEventListener("click", install);
+	h1.insertAdjacentElement('afterend', newInstallButton);
 }
+
+
+chrome.runtime.onMessage.addListener(function(msg){
+    console.log(msg);
+
+    if(isIssuePathName()){
+    	let checkTrainButton = document.getElementById('train-button-id');
+    	let checkClassifyButton = document.getElementById('classify-button-id');
+
+    	console.log('pathname');
+
+		if(!checkClassifyButton)
+			createTrainButton();
+
+		if(!checkClassifyButton)
+			checkIsOwner();
+    }
+    
+})

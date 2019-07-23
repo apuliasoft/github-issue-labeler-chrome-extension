@@ -19,3 +19,12 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         return true; // prevents the callback from being called too early on return
     }
 });
+
+
+chrome.webNavigation.onHistoryStateUpdated.addListener(function(details) {
+        console.log('Page uses History API and we heard a pushSate/replaceState.');
+        console.log(details);      
+        // chrome.tabs.executeScript(null,{file:"classify.js"});
+        chrome.tabs.sendMessage(details.tabId, {text:'Ricarica pulsanti'});
+});
+
