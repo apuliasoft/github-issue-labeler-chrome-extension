@@ -6,8 +6,8 @@ let pathname = window.location.pathname;
 let pathnameArray = pathname.split("/");
 var repo = pathnameArray[1]+"/"+pathnameArray[2];
 
-
 if(isIssuePathName()){
+	createDivContainer();
 	const h1 = document.getElementsByTagName("h1")[0];
 
 	if(h1.className.trim()!="public")
@@ -18,8 +18,17 @@ if(isIssuePathName()){
 	}
 }
 
+function createDivContainer(){
+	const elem = document.getElementsByClassName('repository-content')[0]
+	const divContainer = document.createElement("div");
+	divContainer.setAttribute('id','container-id');
+	divContainer.setAttribute('style','margin-bottom:10px;');
+	elem.insertBefore(divContainer, elem.firstChild);
+}
+
 function isIssuePathName(){
-	return true;
+	const regex = /https?:\/\/github\.com\/(.*?)\/(.*?)\/issues/;
+	return regex.test(window.location.href);
 }
 
 function getCurrentUrl(){
@@ -27,16 +36,16 @@ function getCurrentUrl(){
 }
 
 function createTrainButton(){
-	const h1 = document.getElementsByTagName("h1")[0];
+
+	const container = document.getElementById('container-id');
 
 	const trainButton = document.createElement("button");
 	trainButton.setAttribute('id','train-button-id');
 	trainButton.setAttribute('class','btn');
-	trainButton.setAttribute('style','margin-left:10px;');
 	trainButton.innerHTML = 'Train this repository';
 	trainButton.addEventListener("click", train);
 
-	h1.insertAdjacentElement('afterend', trainButton);
+	container.appendChild(trainButton);
 }
 
 function train(){
@@ -115,19 +124,27 @@ function getMyModels(){
 
 function showClassifyButton(models){
 	console.log(models);
+	const checkClassifyButton = document.getElementById('classify-button-id');
+	if(checkClassifyButton){
+		return 0;
+	}
 
 	if(models.length<=0){
 		console.log("You don't have any model to classify your repo!")
 		return 0;
 	}
 
-	const h1 = document.getElementsByTagName("h1")[0];
+	
 
-	let newSpan = document.createElement("h1");
+	const container = document.getElementById('container-id');
+
+
+	let newSpan = document.createElement("h3");
+	newSpan.setAttribute('style','margin-top:10px;margin-bottom:5px');
 	newSpan.innerHTML = "Models: ";
 
 	let newSelect = document.createElement("select");
-	let styleSelect = "padding-right:40px;margin-right:10px;margin-left:5px;background-image: linear-gradient(45deg, transparent 50%, gray 50%), linear-gradient(135deg, gray 50%, transparent 50%), linear-gradient(to right, #ccc, #ccc); background-position: calc(100% - 20px) calc(1em + 2px), calc(100% - 15px) calc(1em + 2px), calc(100% - 2.5em) 0.5em; background-size: 5px 5px, 5px 5px, 1px 1.5em; background-repeat: no-repeat;";
+	let styleSelect = "padding-right:40px;margin-right:10px;background-image: linear-gradient(45deg, transparent 50%, gray 50%), linear-gradient(135deg, gray 50%, transparent 50%), linear-gradient(to right, #ccc, #ccc); background-position: calc(100% - 20px) calc(1em + 2px), calc(100% - 15px) calc(1em + 2px), calc(100% - 2.5em) 0.5em; background-size: 5px 5px, 5px 5px, 1px 1.5em; background-repeat: no-repeat;";
 
     newSelect.setAttribute('id','myModels');
     newSelect.setAttribute('class','btn');
@@ -151,9 +168,10 @@ function showClassifyButton(models){
 	newClassifyButton.innerHTML = 'Classify';
 	newClassifyButton.addEventListener("click", classify);
 
-	h1.insertAdjacentElement('afterend', newClassifyButton);
-	h1.insertAdjacentElement('afterend', newSelect);
-	h1.insertAdjacentElement('afterend', newSpan);
+	
+	container.appendChild(newSpan);
+	container.appendChild(newSelect);
+	container.appendChild(newClassifyButton);
 }
 
 function classify(){
@@ -181,7 +199,13 @@ function install(){
 
 function showInstallButton()
 {
-	const h1 = document.getElementsByTagName("h1")[0];
+	const checkClassifyButton = document.getElementById('classify-button-id');
+	
+	if(checkClassifyButton){
+		return 0;
+	}
+
+	const container = document.getElementById('container-id');
 
 	let newInstallButton = document.createElement("button");
 	newInstallButton.setAttribute('id','classify-button-id');
@@ -190,7 +214,7 @@ function showInstallButton()
 	newInstallButton.innerHTML = 'Install';
 	newInstallButton.addEventListener("click", install);
 
-	h1.insertAdjacentElement('afterend', newInstallButton);
+	container.appendChild(newInstallButton);
 }
 
 
@@ -198,16 +222,21 @@ chrome.runtime.onMessage.addListener(function(msg){
     console.log(msg);
 
     if(isIssuePathName()){
+ 
     	let checkTrainButton = document.getElementById('train-button-id');
     	let checkClassifyButton = document.getElementById('classify-button-id');
+    	let checkDivContainer = document.getElementById('container-id');
 
-    	console.log('pathname');
+    	if(!checkDivContainer)
+			createDivContainer();
 
-		if(!checkClassifyButton)
+		if(!checkTrainButton)
 			createTrainButton();
 
 		if(!checkClassifyButton)
 			checkIsOwner();
+
+		
     }
     
 })
