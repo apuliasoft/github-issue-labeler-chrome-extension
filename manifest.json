@@ -1,15 +1,11 @@
 {
     "manifest_version": 2,
-    "name": "OpenReq", 
-    "description": "The extension that help you to classify the issues",
+    "name": "OpenReq GitHub Issue Labeller Chrome Extension", 
+    "description": "The extension allows training models of labels for issues of existing repositories and classifying personal public repository's issues using those models",
     "content_scripts": [{
         "js": ["classify.js"],
         "matches": ["*://github.com/*"]
      }
-     // {
-     //    "js": ["train.js"],
-     //    "matches": ["https://github.com/*/*/issues"]
-     // }
     ],
     "version": "1.0",
     "author": "ApuliaSoft srl",
@@ -18,15 +14,14 @@
               "128": "icon128.png" },
     "browser_action": {
         "default_icon": "icon.png",
-        "default_title": "OpenReq extension"
+        "default_title": "OpenReq GitHub Issue Labeller"
     },
     "permissions": [
         "webNavigation",
         "tabs",
         "activeTab",
         "http://134.209.248.162:5000/*",
-        "https://github.com/*",
-        "http://acca-ufficius.herokuapp.com/*"
+        "https://github.com/*"
      ],
     "background": {
         "scripts": ["background.js"]
