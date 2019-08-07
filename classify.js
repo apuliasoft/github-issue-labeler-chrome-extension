@@ -27,7 +27,7 @@ function createDivContainer(){
 }
 
 function isIssuePathName(){
-	const regex = /https?:\/\/github\.com\/(.*?)\/(.*?)\/issues/;
+	const regex = /^https?:\/\/github\.com\/(.*?)\/(.*?)\/issues$/;
 	return regex.test(window.location.href);
 }
 
